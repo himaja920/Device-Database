@@ -17,36 +17,21 @@ Man =3
 enum command{
 Read = 2,
 Write = 1,
-Delete =3,
-Edit =4
+Response =3
 };
-
 void func(int sockfd) 
 { 
-	    char data[SIZE]; 
-	    int n;
-
-              char *file[35],c;
-               read(sockfd,file,sizeof(file));
-               printf("Filename is : %c\n",file);
-               FILE *f =fopen(file,"r");
-               printf("File content is :\n");
-             while((c = fgetc(f))!=EOF)          //printing file contents
-             {
-                printf("%c",c);
-             }
-             printf("\n");
-             fclose(f);	
-           
+	char data[SIZE]; 
+	int n; 
+	
          for (;;) 
           { 
 		bzero(data,SIZE); 
 	        
                 int8_t h =0,id,choice,n=0;
                 int8_t dn,did;
-                char name[31],n1[31],location[31],l1[31],manuf[31],m1[31]; 
-               // n1,l1,m1 are for displaying to user on request
-
+                char name[31],n1[31],location[31],l1[31],manuf[31],m1[31];                // n1,l1,m1 are for displaying to user on request
+                
                 printf("+-------MENU------+\n");
                 printf("-------1.ADD-------\n");
                 printf("-------2.READ------\n");
@@ -112,26 +97,31 @@ void func(int sockfd)
                    //printf("Length of whole data after second attribute length taken and value of that is  %d %d \n",h,data[h]);
                 
                    strcpy(data+h,location);//Second Attribute value
-                   h = strlen(data);               
+                   h = strlen(data);
+                
+                   //printf("After all added second things h is %d\n",h);
+               
 //THIRD ATTRIBUTE 
-                   
-                   data[h++] = Man; //Third attribute ID
+                   // printf("H+1 is %d\n",h);
+                   data[h++] = Man;//Third attribute ID
              
                    printf("Length of third  attribute ID is %d\n",h);
                    printf("Enter the device manufacturer\n");
                    
                    scanf("%s",manuf);
                    strcpy(m1,manuf);
-                   
-                   data[h++] = strlen(manuf); //Third attribute length
+                   //h = h+1;
+                   data[h++] = strlen(manuf);//Third attribute length
 
                    h = strlen(data);
-                   strcpy(data+h,manuf); //Third attribute value
+                   strcpy(data+h,manuf);//Third attribute value
                    
                    int8_t g= strlen(data);
                    
-                  
-                   /*int8_t a;
+                   //printf("Whole length of the data is %d\n",g);
+                   //printf("Request the attribute to display by user\n");
+                
+                   int8_t a;
                    printf("Enter the choice to retrieve required attribute\n");
                    scanf("%d",&a);
                    if(a == 1)
@@ -141,16 +131,21 @@ void func(int sockfd)
                    else if (a == 3)
                     { printf("The attribute chosen is device manufacturer and it is : %s\n",m1);}
                    else
-                    { printf("Not a valid Attribute ID\n");}*/
+                    { printf("Not a valid Attribute ID\n");}
              
                    printf("Sending data..\n");
                    write(sockfd,data,sizeof(data));
+                  // int s =write(sockfd,data,sizeof(data));
+                  // printf("write return %d\n",s);
+                   
                   
+
              }
 
                    else if(data[0] == 2)
                     {
-                      
+                      // printf("This is Read command so no adding of devices\n");
+                      //int8_t dn,did;
                       int8_t i=0;
                       char buf[31];
                       printf("Enter the device number that is to be read\n");
@@ -159,13 +154,16 @@ void func(int sockfd)
                       i = i+1;
                       printf("i  after data[0] is %d\n",i);
                       data[i] = dn;
+                     //while((dn[n++] = getchar()) != '\n');
                      
                       printf("Enter the attribute ID that is to be read\n");
                       scanf("%d",&did);
                       i=i+1;
                       data[i] = did;
+                      printf("i after data[1] is %d\n",i);
+                     //while((dn[n++] = getchar()) != '\n');
                      
-                      printf("Device attribute id is %d\n",did);
+                      printf("device attribute id is %d\n",did);
                      
                       write(sockfd,data,sizeof(data));
                       write(sockfd,dn,sizeof(dn));
@@ -191,10 +189,12 @@ void func(int sockfd)
                         data[c] = d;
                          printf("Sending device number to deleted\n");
                              
+
                            write(sockfd,data,sizeof(data));                
                      } // else if data[0] == 3
 
-////  4.EDIT DEVICE  ////
+
+                ////  4.EDIT DEVICE  ////
 
 
                      else if(data[0] == 4)
@@ -238,6 +238,17 @@ void func(int sockfd)
                               } //5
                                                          
                     }//else if data[0] == 4
+               	     
+
+
+                  /* char buf[SIZE];
+                   int inft,outft,fileread;
+                   outft = open("filename1.txt", O_CREAT | O_APPEND | O_RDWR);
+                   printf("File contents are : \n");                   
+                   read(outft,buf,sizeof(buf));
+                   printf("\n\n");
+                   close(outft);*/
+                 
 
                      bzero(data, sizeof(data)); 
 		     read(sockfd, data, sizeof(data)); 
@@ -255,12 +266,34 @@ void func(int sockfd)
 int main() 
 { 
 
-            printf("The commands are  Write = %d , Read = %d , Response = %d \n",Write,Read,Edit);
+            printf("The commands are  Write = %d , Read = %d , Response = %d \n",Write,Read,Response);
             printf("Attribute IDs are Name = %d , Location = %d , Manufacturer = %d \n\n",Name,Loc,Man);
-   
+
+            
+             /*char c;
+             FILE *f;
+             f = fopen("filename.txt","r+");
+             printf("The file contents are \n");
+             while((c = fgetc(f))!=EOF)
+             {
+                printf("%c ",c);
+             }
+             printf("\n");*/
+             /*if(s == 1)
+             {
+               func(sockfd);
+             }
+             else if(s == 2)
+             {
+               edit();
+             }
+             else if(s ==3)
+             { printf("Delete\n");}
+             else
+                printf("Not a valid option\n");*/
+          
                   int sockfd,connfd;
 	         struct sockaddr_in servaddr, cli; 
-
 
 	         // socket creation and verification 
 	         sockfd = socket(AF_INET, SOCK_STREAM, 0); 
@@ -289,8 +322,23 @@ int main()
 		printf("connected to the server..\n"); 
                 //send_data(sockfd);
 
-        
-            
+              FILE *f;
+              f = fopen("filename.txt","r");
+              char c;
+              printf("File content :\n");
+              while((c = fgetc(f)) != EOF)
+              {
+                 printf("%c ",c);
+              }
+              printf("\n\n");
+              /*FILE *f;
+              char buffer[SIZE];
+              read(sockfd,buffer,sizeof(buffer));
+              f = fopen("filename.txt","r");
+              printf("file contents are \n");
+              printf("%s",buffer);
+              printf("\n\n");
+              fclose(f);*/
 	        // function for chat 
 	
         func(sockfd);
